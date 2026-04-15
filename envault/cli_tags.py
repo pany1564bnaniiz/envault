@@ -77,3 +77,21 @@ def tag_find(tag: str, store: str, password: str) -> None:
         click.echo("\n".join(projects))
     else:
         click.echo(f"No projects found with tag '{tag}'.")
+
+
+@cmd_tag.command("rename")
+@click.argument("old_tag")
+@click.argument("new_tag")
+@click.option("--store", envvar="ENVAULT_STORE", required=True, help="Path to store file.")
+@click.password_option("--password", envvar="ENVAULT_PASSWORD", confirmation_prompt=False)
+def tag_rename(old_tag: str, new_tag: str, store: str, password: str) -> None:
+    """Rename OLD_TAG to NEW_TAG across all projects."""
+    try:
+        affected = tag_mod.rename_tag(store, password, old_tag, new_tag)
+        if affected:
+            click.echo(f"Tag '{old_tag}' renamed to '{new_tag}' on {affected} project(s).")
+        else:
+            click.echo(f"No projects found with tag '{old_tag}'.")
+    except KeyError as exc:
+        click.echo(str(exc), err=True)
+        sys.exit(1)
