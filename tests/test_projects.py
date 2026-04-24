@@ -79,3 +79,10 @@ def test_multiple_projects_isolated():
     proj.set_env("beta", "VAR", "from-beta", PASSWORD)
     assert proj.get_env("alpha", "VAR", PASSWORD) == "from-alpha"
     assert proj.get_env("beta", "VAR", PASSWORD) == "from-beta"
+
+
+def test_wrong_password_raises():
+    """Decrypting with the wrong password should raise an error."""
+    proj.set_env("myapp", "SECRET", "hidden", PASSWORD)
+    with pytest.raises(Exception):
+        proj.get_env("myapp", "SECRET", "wrong-password")
