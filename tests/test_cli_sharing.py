@@ -51,3 +51,13 @@ def test_peek_lists_keys(store_file):
     assert result.exit_code == 0
     assert "ALPHA" in result.output
     assert "BETA" in result.output
+
+
+def test_import_values_accessible_after_import(store_file):
+    """Verify that imported variables can be retrieved from the destination project."""
+    set_env(store_file, "pw", "src", "SECRET", "s3cr3t")
+    bundle = export_bundle(store_file, "pw", "src", "bpw")
+    result = _invoke(store_file, ["import", "dest", bundle, "--store", str(store_file),
+                                   "--password", "pw", "--bundle-password", "bpw"])
+    assert result.exit_code == 0
+    assert get_env(store_file, "pw", "dest", "SECRET") == "s3cr3t"
