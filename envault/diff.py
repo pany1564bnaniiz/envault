@@ -42,6 +42,22 @@ def diff_envs(
     return entries
 
 
+def diff_summary(entries: List[DiffEntry]) -> Dict[str, int]:
+    """Return a count of each status type in the diff entries.
+
+    Example::
+
+        >>> summary = diff_summary(entries)
+        >>> print(summary)
+        {'added': 2, 'removed': 0, 'changed': 1, 'unchanged': 5}
+    """
+    summary: Dict[str, int] = {"added": 0, "removed": 0, "changed": 0, "unchanged": 0}
+    for entry in entries:
+        if entry.status in summary:
+            summary[entry.status] += 1
+    return summary
+
+
 def format_diff(entries: List[DiffEntry], mask_values: bool = True) -> str:
     """Render diff entries as a human-readable string."""
     if not entries:
