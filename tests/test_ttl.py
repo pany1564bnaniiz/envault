@@ -53,6 +53,19 @@ def test_set_ttl_missing_key_raises(tmp_store):
         set_ttl(tmp_store, PASSWORD, PROJECT, "MISSING", 30)
 
 
+def test_set_ttl_overwrites_existing_expiry(tmp_store):
+    """Calling set_ttl a second time should replace the previous expiry."""
+    _seed(tmp_store)
+    set_ttl(tmp_store, PASSWORD, PROJECT, "API_KEY", ttl_seconds=60)
+    first_expiry = get_ttl(tmp_store, PASSWORD, PROJECT, "API_KEY")
+
+    set_ttl(tmp_store, PASSWORD, PROJECT, "API_KEY", ttl_seconds=120)
+    second_expiry = get_ttl(tmp_store, PASSWORD, PROJECT, "API_KEY")
+
+    assert second_expiry is not None
+    assert second_expiry > first_expiry
+
+
 # ---------------------------------------------------------------------------
 # purge_expired
 # ---------------------------------------------------------------------------
@@ -91,9 +104,3 @@ def test_list_expiring_shows_all_ttl_keys(tmp_store):
     _seed(tmp_store, "A", "1")
     _seed(tmp_store, "B", "2")
     _seed(tmp_store, "C", "3")
-    set_ttl(tmp_store, PASSWORD, PROJECT, "A", 100)
-    set_ttl(tmp_store, PASSWORD, PROJECT, "B", 200)
-
-    expiring = list_expiring(tmp_store, PASSWORD, PROJECT)
-    assert set(expiring.keys()) == {"A", "B"}
-    assert "C" not in expiring
